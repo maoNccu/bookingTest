@@ -145,10 +145,9 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
   const name = document.getElementById('name').value;
   const phone = document.getElementById('phone').value;
   const timeslot = document.getElementById('timeslot').value;
-  const ticketId = 'iGER-' + Math.floor(1000 + Math.random() * 9000);
 
+  // 傳送資料給後端（不再於前端生成 ticketId）
   const payload = {
-    ticketId: ticketId,
     name: name,
     phone: phone,
     timeslot: timeslot
@@ -161,16 +160,16 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
   .then(response => response.json())
   .then(data => {
     if (data.result === 'success') {
+      // 使用後端傳回來的「場次+流水號」預約編號
       document.getElementById('displayName').innerText = name;
       document.getElementById('displayTime').innerText = timeslot;
-      document.getElementById('ticketId').innerText = ticketId;
+      document.getElementById('ticketId').innerText = data.ticketId; 
 
       document.getElementById('bookingForm').style.display = 'none';
       document.getElementById('ticketCard').style.display = 'block';
 
     } else if (data.result === 'full') {
       alert(data.message);
-      // 額滿時重新刷新名額選單
       loadTimeslotQuota();
       submitBtn.innerText = '立即預約';
       submitBtn.disabled = false;
