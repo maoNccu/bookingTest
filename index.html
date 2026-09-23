@@ -188,6 +188,59 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
     submitBtn.disabled = false;
   });
 });
+
+  function searchBooking() {
+  const phoneInput = document.getElementById('searchPhone').value.trim();
+  const resultDiv = document.getElementById('searchResult');
+  const searchBtn = document.getElementById('searchBtn');
+
+  if (!phoneInput) {
+    alert('請輸入手機號碼！');
+    return;
+  }
+
+  searchBtn.innerText = '查詢中...';
+  searchBtn.disabled = true;
+  resultDiv.innerHTML = '';
+
+  // 呼叫 GET API 並帶上 phone 參數
+  fetch(`${GAS_API_URL}?phone=${encodeURIComponent(phoneInput)}`)
+    .then(response => response.json())
+    .then(res => {
+      searchBtn.innerText = '查詢預約記錄';
+      searchBtn.disabled = false;
+
+      if (res.result === 'success') {
+        if (res.data.length === 0) {
+          resultDiv.innerHTML = '<p style="color: #d9534f; text-align: center;">查無預約紀錄，請確認號碼是否正確。</p>';
+        } else {
+          let html = '<div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">';
+          html += '<p style="font-weight: bold; margin-bottom: 8px; color: #007aff;">找到您的預約紀錄：</p>';
+          
+          res.data.forEach(item => {
+            html += `
+              <div style="padding: 8px 0; border-bottom: 1px dashed #ccc;">
+                <p><b>編號：</b>${item.ticketId}</p>
+                <p><b>姓名：</b>${item.name}</p>
+                <p><b>時段：</b>${item.timeslot}</p>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+          resultDiv.innerHTML = html;
+        }
+      } else {
+        resultDiv.innerHTML = '<p style="color: red;">查詢失敗：' + res.message + '</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      searchBtn.innerText = '查詢預約記錄';
+      searchBtn.disabled = false;
+      resultDiv.innerHTML = '<p style="color: red;">網路連線錯誤，請重試。</p>';
+    });
+}
 </script>
 
 </body>
