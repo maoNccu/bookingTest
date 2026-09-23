@@ -55,6 +55,8 @@
           <option value="">-- 請選擇時段 --</option>
           <option value="10:00-11:00">10:00 - 11:00</option>
           <option value="11:00-12:00">11:00 - 12:00</option>
+          <option value="12:00-13:00">11:00 - 12:00</option>
+          <option value="13:00-14:00">11:00 - 12:00</option>
           <option value="14:00-15:00">14:00 - 15:00</option>
         </select>
       </div>
@@ -113,32 +115,39 @@
 
     // 發送資料至 Google Apps Script
     fetch(GAS_API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.result === 'success') {
-        // 顯示預約憑證
-        document.getElementById('displayName').innerText = name;
-        document.getElementById('displayTime').innerText = timeslot;
-        document.getElementById('ticketId').innerText = ticketId;
+  method: 'POST',
+  body: JSON.stringify(payload)
+})
+.then(response => response.json())
+.then(data => {
+  if (data.result === 'success') {
+    // 預約成功：顯示憑證
+    document.getElementById('displayName').innerText = name;
+    document.getElementById('displayTime').innerText = timeslot;
+    document.getElementById('ticketId').innerText = ticketId;
 
-        document.getElementById('bookingForm').style.display = 'none';
-        document.getElementById('ticketCard').style.display = 'block';
-      } else {
-        alert('預約失敗，請稍後再試。');
-        submitBtn.innerText = '立即預約';
-        submitBtn.disabled = false;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('網路連線錯誤，請重試！');
-      submitBtn.innerText = '立即預約';
-      submitBtn.disabled = false;
-    });
-  });
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('ticketCard').style.display = 'block';
+
+  } else if (data.result === 'full') {
+    // 時段已額滿提示
+    alert(data.message);
+    submitBtn.innerText = '立即預約';
+    submitBtn.disabled = false;
+
+  } else {
+    // 其他錯誤
+    alert('系統錯誤：' + data.message);
+    submitBtn.innerText = '立即預約';
+    submitBtn.disabled = false;
+  }
+})
+.catch(error => {
+  console.error('Error:', error);
+  alert('網路連線失敗，請稍後再試！');
+  submitBtn.innerText = '立即預約';
+  submitBtn.disabled = false;
+});
 </script>
 
 </body>
