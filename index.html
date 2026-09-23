@@ -5,29 +5,162 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>活動線上預約系統</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f5f5f7; color: #333; line-height: 1.6; padding: 16px; }
-    main { max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    header { background: #007aff; color: white; padding: 30px 20px; text-align: center; }
-    header h1 { font-size: 22px; }
-    header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     
-    .content-box { padding: 20px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+    body { 
+      background: var(--bg-gradient); 
+      color: var(--text-main); 
+      line-height: 1.6; 
+      padding: 24px 16px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    main { 
+      width: 100%;
+      max-width: 440px; 
+      background: var(--card-bg); 
+      border-radius: 20px; 
+      overflow: hidden; 
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    header { 
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); 
+      color: white; 
+      padding: 32px 24px; 
+      text-align: center; 
+    }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    header p { font-size: 14px; opacity: 0.85; margin-top: 6px; font-weight: 300; }
     
-    button { width: 100%; padding: 14px; background: #007aff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    .content-box { padding: 28px 24px; }
     
-    .ticket-card { display: none; background: #eef7ff; border: 2px dashed #007aff; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
-    .ticket-card h2 { color: #007aff; font-size: 18px; margin-bottom: 10px; }
-    .ticket-info { text-align: left; margin: 12px 0; font-size: 14px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { 
+      display: block; 
+      margin-bottom: 8px; 
+      font-weight: 600; 
+      font-size: 14px; 
+      color: var(--text-main);
+    }
     
-    details { margin-top: 20px; border-top: 1px solid #eee; padding-top: 16px; }
-    summary { cursor: pointer; font-weight: bold; color: #555; display: flex; justify-content: space-between; align-items: center; }
+    .form-group input, .form-group select { 
+      width: 100%; 
+      padding: 12px 16px; 
+      border: 1px solid var(--border-color); 
+      border-radius: var(--radius); 
+      font-size: 15px; 
+      color: var(--text-main);
+      background-color: #f8fafc;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      background-color: #fff;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
     
-    footer { text-align: center; padding: 20px; font-size: 12px; color: #888; border-top: 1px solid #eee; }
+    button { 
+      width: 100%; 
+      padding: 14px; 
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
+      color: white; 
+      border: none; 
+      border-radius: var(--radius); 
+      font-size: 16px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+    }
+    
+    button:hover { 
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* 漂亮的預約票券卡片 */
+    .ticket-card { 
+      display: none; 
+      background: #f0fdf4; 
+      border: 2px dashed #22c55e; 
+      border-radius: 16px; 
+      padding: 24px; 
+      text-align: center; 
+      margin-top: 10px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ticket-card h2 { color: #15803d; font-size: 20px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .ticket-card .subtitle { color: #166534; font-size: 13px; margin-bottom: 16px; opacity: 0.8; }
+    
+    .ticket-info { 
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left; 
+      font-size: 14px; 
+      border: 1px solid #dcfce7;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .ticket-info p { margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .ticket-info p:last-child { margin-bottom: 0; }
+    .ticket-info span.value { font-weight: 600; color: var(--text-main); }
+    .ticket-info span.value-highlight { font-weight: 700; color: var(--primary-color); font-size: 16px; }
+
+    /* 查詢收合選單 */
+    details { 
+      margin-top: 24px; 
+      border-top: 1px solid var(--border-color); 
+      padding-top: 16px; 
+    }
+    summary { 
+      cursor: pointer; 
+      font-weight: 600; 
+      color: var(--text-muted); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      font-size: 14px;
+      user-select: none;
+    }
+    summary:hover { color: var(--text-main); }
+    
+    footer { 
+      text-align: center; 
+      padding: 16px; 
+      font-size: 13px; 
+      color: var(--text-muted); 
+      background-color: #f8fafc;
+      border-top: 1px solid var(--border-color); 
+    }
   </style>
 </head>
 <body>
@@ -53,11 +186,6 @@
         <label for="timeslot">預約時段</label>
         <select id="timeslot" required>
           <option value="">-- 正在載入名額資訊... --</option>
-          <option value="10:00-11:00">10:00 - 11:00</option>
-          <option value="11:00-12:00">11:00 - 12:00</option>
-          <option value="12:00-13:00">11:00 - 12:00</option>
-          <option value="13:00-14:00">11:00 - 12:00</option>
-          <option value="14:00-15:00">14:00 - 15:00</option>
         </select>
       </div>
       <button type="submit" id="submitBtn">立即預約</button>
@@ -65,181 +193,180 @@
 
     <!-- 預約成功憑證 -->
     <div id="ticketCard" class="ticket-card">
-      <h2>預約完成 ✓</h2>
-      <p>請儲存此畫面，現場出示憑證入場</p>
+      <h2>✓ 預約完成</h2>
+      <p class="subtitle">請截圖儲存此畫面，現場出示憑證入場</p>
       <div class="ticket-info">
-        <p><b>預約編號：</b><span id="ticketId"></span></p>
-        <p><b>姓名：</b><span id="displayName"></span></p>
-        <p><b>時段：</b><span id="displayTime"></span></p>
+        <p><span>預約編號</span><span id="ticketId" class="value-highlight"></span></p>
+        <p><span>姓名</span><span id="displayName" class="value"></span></p>
+        <p><span>時段</span><span id="displayTime" class="value"></span></p>
       </div>
     </div>
 
     <!-- 查詢專區 -->
-<details>
-  <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
-  <div style="margin-top: 12px;">
-    <div class="form-group">
-      <input type="tel" id="searchPhone" placeholder="請輸入報名時的手機號碼">
-    </div>
-    <button type="button" id="searchBtn" onclick="searchBooking()" style="background: #6c757d;">查詢預約記錄</button>
+    <details>
+      <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
+      <div style="margin-top: 16px;">
+        <div class="form-group">
+          <input type="tel" id="searchPhone" placeholder="請輸入報名時的手機號碼">
+        </div>
+        <button type="button" id="searchBtn" onclick="searchBooking()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);">查詢預約記錄</button>
 
-    <!-- 查詢結果顯示區域 -->
-    <div id="searchResult" style="margin-top: 15px; font-size: 14px;"></div>
-  </div>
-</details>
+        <!-- 查詢結果顯示區域 -->
+        <div id="searchResult" style="margin-top: 16px; font-size: 14px;"></div>
+      </div>
+    </details>
   </div>
 
   <footer>主辦單位：您的單位名稱</footer>
 </main>
 
 <script>
-// 1. 請將下方替換為您從 Google Apps Script 取得的 Web 應用程式 URL
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
-// 頁面載入完成後自動查詢名額
-document.addEventListener('DOMContentLoaded', function() {
-  loadTimeslotQuota();
-});
-
-function loadTimeslotQuota() {
-  const selectEl = document.getElementById('timeslot');
-
-  fetch(GAS_API_URL)
-    .then(response => response.json())
-    .then(res => {
-      if (res.result === 'success') {
-        selectEl.innerHTML = '<option value="">-- 請選擇預約時段 --</option>';
-
-        res.data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.timeslot;
-
-          if (item.isFull) {
-            option.textContent = `${item.timeslot} (已額滿)`;
-            option.disabled = true; // 額滿時禁用
-          } else {
-            option.textContent = `${item.timeslot} (剩餘 ${item.remaining} 名)`;
-          }
-
-          selectEl.appendChild(option);
-        });
-      } else {
-        selectEl.innerHTML = '<option value="">-- 載入時段失敗，請重新整理 --</option>';
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      selectEl.innerHTML = '<option value="">-- 網路連線錯誤 --</option>';
-    });
-}
-
-// 處理表單提交 POST 邏輯
-document.getElementById('bookingForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.innerText = '處理中...';
-  submitBtn.disabled = true;
-
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
-  const timeslot = document.getElementById('timeslot').value;
-
-  const payload = {
-    name: name,
-    phone: phone,
-    timeslot: timeslot
-  };
-
-  // 使用 text/plain 可以完美避開瀏覽器的跨網域 CORS 預檢攔截
-  fetch(GAS_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.result === 'success') {
-      document.getElementById('displayName').innerText = name;
-      document.getElementById('displayTime').innerText = timeslot;
-      document.getElementById('ticketId').innerText = data.ticketId; 
-
-      document.getElementById('bookingForm').style.display = 'none';
-      document.getElementById('ticketCard').style.display = 'block';
-
-    } else if (data.result === 'full') {
-      alert(data.message);
-      loadTimeslotQuota(); // 重新載入名額
-      submitBtn.innerText = '立即預約';
-      submitBtn.disabled = false;
-
-    } else {
-      alert('預約失敗：' + data.message);
-      submitBtn.innerText = '立即預約';
-      submitBtn.disabled = false;
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('網路連線失敗，請重試！');
-    submitBtn.innerText = '立即預約';
-    submitBtn.disabled = false;
+  // 頁面載入完成後自動查詢名額
+  document.addEventListener('DOMContentLoaded', function() {
+    loadTimeslotQuota();
   });
-});
-  function searchBooking() {
-  const phoneInput = document.getElementById('searchPhone').value.trim();
-  const resultDiv = document.getElementById('searchResult');
-  const searchBtn = document.getElementById('searchBtn');
 
-  if (!phoneInput) {
-    alert('請輸入手機號碼！');
-    return;
+  function loadTimeslotQuota() {
+    const selectEl = document.getElementById('timeslot');
+
+    fetch(GAS_API_URL)
+      .then(response => response.json())
+      .then(res => {
+        if (res.result === 'success') {
+          selectEl.innerHTML = '<option value="">-- 請選擇預約時段 --</option>';
+
+          res.data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.timeslot;
+
+            if (item.isFull) {
+              option.textContent = `${item.timeslot} (已額滿)`;
+              option.disabled = true;
+            } else {
+              option.textContent = `${item.timeslot} (剩餘 ${item.remaining} 名)`;
+            }
+
+            selectEl.appendChild(option);
+          });
+        } else {
+          selectEl.innerHTML = '<option value="">-- 載入時段失敗，請重新整理 --</option>';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        selectEl.innerHTML = '<option value="">-- 網路連線錯誤 --</option>';
+      });
   }
 
-  searchBtn.innerText = '查詢中...';
-  searchBtn.disabled = true;
-  resultDiv.innerHTML = '';
+  // 處理表單提交 POST 邏輯
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-  // 呼叫 GET API 並帶上 phone 參數
-  fetch(`${GAS_API_URL}?phone=${encodeURIComponent(phoneInput)}`)
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = '處理中...';
+    submitBtn.disabled = true;
+
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const timeslot = document.getElementById('timeslot').value;
+
+    const payload = {
+      name: name,
+      phone: phone,
+      timeslot: timeslot
+    };
+
+    fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(payload)
+    })
     .then(response => response.json())
-    .then(res => {
-      searchBtn.innerText = '查詢預約記錄';
-      searchBtn.disabled = false;
+    .then(data => {
+      if (data.result === 'success') {
+        document.getElementById('displayName').innerText = name;
+        document.getElementById('displayTime').innerText = timeslot;
+        document.getElementById('ticketId').innerText = data.ticketId; 
 
-      if (res.result === 'success') {
-        if (res.data.length === 0) {
-          resultDiv.innerHTML = '<p style="color: #d9534f; text-align: center;">查無預約紀錄，請確認號碼是否正確。</p>';
-        } else {
-          let html = '<div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">';
-          html += '<p style="font-weight: bold; margin-bottom: 8px; color: #007aff;">找到您的預約紀錄：</p>';
-          
-          res.data.forEach(item => {
-            html += `
-              <div style="padding: 8px 0; border-bottom: 1px dashed #ccc;">
-                <p><b>編號：</b>${item.ticketId}</p>
-                <p><b>姓名：</b>${item.name}</p>
-                <p><b>時段：</b>${item.timeslot}</p>
-              </div>
-            `;
-          });
-          
-          html += '</div>';
-          resultDiv.innerHTML = html;
-        }
+        document.getElementById('bookingForm').style.display = 'none';
+        document.getElementById('ticketCard').style.display = 'block';
+
+      } else if (data.result === 'full') {
+        alert(data.message);
+        loadTimeslotQuota();
+        submitBtn.innerText = '立即預約';
+        submitBtn.disabled = false;
+
       } else {
-        resultDiv.innerHTML = '<p style="color: red;">查詢失敗：' + res.message + '</p>';
+        alert('預約失敗：' + data.message);
+        submitBtn.innerText = '立即預約';
+        submitBtn.disabled = false;
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      searchBtn.innerText = '查詢預約記錄';
-      searchBtn.disabled = false;
-      resultDiv.innerHTML = '<p style="color: red;">網路連線錯誤，請重試。</p>';
+      alert('網路連線失敗，請重試！');
+      submitBtn.innerText = '立即預約';
+      submitBtn.disabled = false;
     });
-}
+  });
+
+  // 查詢功能
+  function searchBooking() {
+    const phoneInput = document.getElementById('searchPhone').value.trim();
+    const resultDiv = document.getElementById('searchResult');
+    const searchBtn = document.getElementById('searchBtn');
+
+    if (!phoneInput) {
+      alert('請輸入手機號碼！');
+      return;
+    }
+
+    searchBtn.innerText = '查詢中...';
+    searchBtn.disabled = true;
+    resultDiv.innerHTML = '';
+
+    fetch(`${GAS_API_URL}?phone=${encodeURIComponent(phoneInput)}`)
+      .then(response => response.json())
+      .then(res => {
+        searchBtn.innerText = '查詢預約記錄';
+        searchBtn.disabled = false;
+
+        if (res.result === 'success') {
+          if (res.data.length === 0) {
+            resultDiv.innerHTML = '<p style="color: #ef4444; text-align: center; font-weight: 500;">查無預約紀錄，請確認號碼是否正確。</p>';
+          } else {
+            let html = '<div style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">';
+            html += '<p style="font-weight: 600; margin-bottom: 12px; color: #2563eb;">找到您的預約紀錄：</p>';
+            
+            res.data.forEach(item => {
+              html += `
+                <div style="padding: 10px 0; border-bottom: 1px dashed #cbd5e1;">
+                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">編號</span><span style="font-weight:700; color:#2563eb;">${item.ticketId}</span></p>
+                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">姓名</span><span style="font-weight:600;">${item.name}</span></p>
+                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">時段</span><span style="font-weight:600;">${item.timeslot}</span></p>
+                </div>
+              `;
+            });
+            
+            html += '</div>';
+            resultDiv.innerHTML = html;
+          }
+        } else {
+          resultDiv.innerHTML = '<p style="color: #ef4444;">查詢失敗：' + res.message + '</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        searchBtn.innerText = '查詢預約記錄';
+        searchBtn.disabled = false;
+        resultDiv.innerHTML = '<p style="color: #ef4444;">網路連線錯誤，請重試。</p>';
+      });
+  }
 </script>
 
 </body>
