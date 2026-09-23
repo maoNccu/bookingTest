@@ -145,21 +145,23 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
   const phone = document.getElementById('phone').value;
   const timeslot = document.getElementById('timeslot').value;
 
-  // 傳送資料給後端（不再於前端生成 ticketId）
   const payload = {
     name: name,
     phone: phone,
     timeslot: timeslot
   };
 
+  // 使用 text/plain 可以完美避開瀏覽器的跨網域 CORS 預檢攔截
   fetch(GAS_API_URL, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
     body: JSON.stringify(payload)
   })
   .then(response => response.json())
   .then(data => {
     if (data.result === 'success') {
-      // 使用後端傳回來的「場次+流水號」預約編號
       document.getElementById('displayName').innerText = name;
       document.getElementById('displayTime').innerText = timeslot;
       document.getElementById('ticketId').innerText = data.ticketId; 
@@ -169,7 +171,7 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
 
     } else if (data.result === 'full') {
       alert(data.message);
-      loadTimeslotQuota();
+      loadTimeslotQuota(); // 重新載入名額
       submitBtn.innerText = '立即預約';
       submitBtn.disabled = false;
 
@@ -186,7 +188,6 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
     submitBtn.disabled = false;
   });
 });
-
   function searchBooking() {
   const phoneInput = document.getElementById('searchPhone').value.trim();
   const resultDiv = document.getElementById('searchResult');
