@@ -88,30 +88,57 @@
 </main>
 
 <script>
+  // 1. 請將下方替換為您從 Google Apps Script 取得的 Web 應用程式 URL
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
+
   document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerText = '處理中...';
+    submitBtn.innerText = '資料送出中...';
     submitBtn.disabled = true;
 
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
-    const time = document.getElementById('timeslot').value;
+    const timeslot = document.getElementById('timeslot').value;
     const ticketId = 'BK-' + Math.floor(100000 + Math.random() * 900000);
 
-    // 顯示預約憑證
-    document.getElementById('displayName').innerText = name;
-    document.getElementById('displayTime').innerText = time;
-    document.getElementById('ticketId').innerText = ticketId;
+    // 要傳送給 Google 試算表的資料
+    const payload = {
+      ticketId: ticketId,
+      name: name,
+      phone: phone,
+      timeslot: timeslot
+    };
 
-    document.getElementById('bookingForm').style.display = 'none';
-    document.getElementById('ticketCard').style.display = 'block';
+    // 發送資料至 Google Apps Script
+    fetch(GAS_API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.result === 'success') {
+        // 顯示預約憑證
+        document.getElementById('displayName').innerText = name;
+        document.getElementById('displayTime').innerText = timeslot;
+        document.getElementById('ticketId').innerText = ticketId;
+
+        document.getElementById('bookingForm').style.display = 'none';
+        document.getElementById('ticketCard').style.display = 'block';
+      } else {
+        alert('預約失敗，請稍後再試。');
+        submitBtn.innerText = '立即預約';
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('網路連線錯誤，請重試！');
+      submitBtn.innerText = '立即預約';
+      submitBtn.disabled = false;
+    });
   });
-
-  function searchBooking() {
-    alert('查詢功能完成後即可使用！');
-  }
 </script>
 
 </body>
