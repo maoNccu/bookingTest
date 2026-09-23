@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>活動線上預約系統</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f5f5f7; color: #333; line-height: 1.6; padding: 16px; }
+    main { max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    header { background: #007aff; color: white; padding: 30px 20px; text-align: center; }
+    header h1 { font-size: 22px; }
+    header p { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+    
+    .content-box { padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+    
+    button { width: 100%; padding: 14px; background: #007aff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    
+    .ticket-card { display: none; background: #eef7ff; border: 2px dashed #007aff; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; }
+    .ticket-card h2 { color: #007aff; font-size: 18px; margin-bottom: 10px; }
+    .ticket-info { text-align: left; margin: 12px 0; font-size: 14px; }
+    
+    details { margin-top: 20px; border-top: 1px solid #eee; padding-top: 16px; }
+    summary { cursor: pointer; font-weight: bold; color: #555; display: flex; justify-content: space-between; align-items: center; }
+    
+    footer { text-align: center; padding: 20px; font-size: 12px; color: #888; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+
+<main>
+  <header>
+    <h1>2026 活動體驗預約</h1>
+    <p>請填寫資料完成線上報名</p>
+  </header>
+
+  <div class="content-box">
+    <!-- 預約表單 -->
+    <form id="bookingForm">
+      <div class="form-group">
+        <label for="name">姓名</label>
+        <input type="text" id="name" required placeholder="請輸入您的姓名">
+      </div>
+      <div class="form-group">
+        <label for="phone">手機號碼</label>
+        <input type="tel" id="phone" required placeholder="請輸入手機號碼">
+      </div>
+      <div class="form-group">
+        <label for="timeslot">預約時段</label>
+        <select id="timeslot" required>
+          <option value="">-- 請選擇時段 --</option>
+          <option value="10:00-11:00">10:00 - 11:00</option>
+          <option value="11:00-12:00">11:00 - 12:00</option>
+          <option value="14:00-15:00">14:00 - 15:00</option>
+        </select>
+      </div>
+      <button type="submit" id="submitBtn">立即預約</button>
+    </form>
+
+    <!-- 預約成功憑證 -->
+    <div id="ticketCard" class="ticket-card">
+      <h2>預約完成 ✓</h2>
+      <p>請儲存此畫面，現場出示憑證入場</p>
+      <div class="ticket-info">
+        <p><b>預約編號：</b><span id="ticketId"></span></p>
+        <p><b>姓名：</b><span id="displayName"></span></p>
+        <p><b>時段：</b><span id="displayTime"></span></p>
+      </div>
+    </div>
+
+    <!-- 查詢專區 -->
+    <details>
+      <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
+      <div style="margin-top: 12px;">
+        <div class="form-group">
+          <input type="tel" id="searchPhone" placeholder="輸入手機號碼">
+        </div>
+        <button type="button" onclick="searchBooking()" style="background: #6c757d;">查詢</button>
+      </div>
+    </details>
+  </div>
+
+  <footer>主辦單位：您的單位名稱</footer>
+</main>
+
+<script>
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = '處理中...';
+    submitBtn.disabled = true;
+
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const time = document.getElementById('timeslot').value;
+    const ticketId = 'BK-' + Math.floor(100000 + Math.random() * 900000);
+
+    // 顯示預約憑證
+    document.getElementById('displayName').innerText = name;
+    document.getElementById('displayTime').innerText = time;
+    document.getElementById('ticketId').innerText = ticketId;
+
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('ticketCard').style.display = 'block';
+  });
+
+  function searchBooking() {
+    alert('查詢功能完成後即可使用！');
+  }
+</script>
+
+</body>
+</html>
