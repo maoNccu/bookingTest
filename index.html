@@ -96,12 +96,11 @@
 // 1. 請將下方替換為您從 Google Apps Script 取得的 Web 應用程式 URL
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
-// 當頁面載入完成時，自動向 GAS 查詢時段名額
+// 頁面載入完成後自動查詢名額
 document.addEventListener('DOMContentLoaded', function() {
   loadTimeslotQuota();
 });
 
-// 向 GET API 請求各時段剩餘名額並繪製下拉選單
 function loadTimeslotQuota() {
   const selectEl = document.getElementById('timeslot');
 
@@ -109,7 +108,7 @@ function loadTimeslotQuota() {
     .then(response => response.json())
     .then(res => {
       if (res.result === 'success') {
-        selectEl.innerHTML = '<option value="">-- 請選擇時段 --</option>';
+        selectEl.innerHTML = '<option value="">-- 請選擇預約時段 --</option>';
 
         res.data.forEach(item => {
           const option = document.createElement('option');
@@ -117,7 +116,7 @@ function loadTimeslotQuota() {
 
           if (item.isFull) {
             option.textContent = `${item.timeslot} (已額滿)`;
-            option.disabled = true; // 額滿時禁用該選項
+            option.disabled = true; // 額滿時禁用
           } else {
             option.textContent = `${item.timeslot} (剩餘 ${item.remaining} 名)`;
           }
@@ -125,7 +124,7 @@ function loadTimeslotQuota() {
           selectEl.appendChild(option);
         });
       } else {
-        selectEl.innerHTML = '<option value="">-- 載入時段失敗，請重試 --</option>';
+        selectEl.innerHTML = '<option value="">-- 載入時段失敗，請重新整理 --</option>';
       }
     })
     .catch(error => {
