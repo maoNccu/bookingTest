@@ -75,15 +75,18 @@
     </div>
 
     <!-- 查詢專區 -->
-    <details>
-      <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
-      <div style="margin-top: 12px;">
-        <div class="form-group">
-          <input type="tel" id="searchPhone" placeholder="輸入手機號碼">
-        </div>
-        <button type="button" onclick="searchBooking()" style="background: #6c757d;">查詢</button>
-      </div>
-    </details>
+<details>
+  <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
+  <div style="margin-top: 12px;">
+    <div class="form-group">
+      <input type="tel" id="searchPhone" placeholder="請輸入報名時的手機號碼">
+    </div>
+    <button type="button" id="searchBtn" onclick="searchBooking()" style="background: #6c757d;">查詢預約記錄</button>
+
+    <!-- 查詢結果顯示區域 -->
+    <div id="searchResult" style="margin-top: 15px; font-size: 14px;"></div>
+  </div>
+</details>
   </div>
 
   <footer>主辦單位：您的單位名稱</footer>
