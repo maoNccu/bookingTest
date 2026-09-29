@@ -22,7 +22,6 @@
         <input type="text" id="name" required placeholder="請輸入您的姓名">
       </div>
       
-      <!-- 新增：服務學校/單位 -->
       <div class="form-group">
         <label for="unit">服務學校/單位</label>
         <input type="text" id="unit" required placeholder="請輸入您的學校或單位名稱">
@@ -32,12 +31,20 @@
         <label for="phone">手機號碼</label>
         <input type="tel" id="phone" required placeholder="請輸入手機號碼">
       </div>
+
+      <!-- 改為按鈕選單式時段選擇區 -->
       <div class="form-group">
-        <label for="timeslot">預約時段</label>
-        <select id="timeslot" required>
-          <option value="">-- 正在載入名額資訊... --</option>
-        </select>
+        <label>選擇預約時段與主題</label>
+        <!-- 隱藏 input 用於表單驗證與紀錄選取的時段 -->
+        <input type="hidden" id="selectedTimeslot" name="timeslot" required>
+        
+        <div id="timeslotList" class="timeslot-container">
+          <p style="color: var(--text-muted); text-align: center; font-size: 14px; padding: 10px 0;">
+            正在載入場次與名額資訊...
+          </p>
+        </div>
       </div>
+
       <button type="submit" id="submitBtn">立即預約</button>
     </form>
 
@@ -74,68 +81,87 @@
 <script>
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
-  // 頁面載入完成後自動查詢名額
   document.addEventListener('DOMContentLoaded', function() {
-    loadTimeslotQuota();
+    loadTimeslots();
   });
 
-  function loadTimeslotQuota() {
-    const selectEl = document.getElementById('timeslot');
+  // 動態載入時段卡片按鈕
+  function loadTimeslots() {
+    const listEl = document.getElementById('timeslotList');
 
     fetch(GAS_API_URL)
       .then(response => response.json())
       .then(res => {
         if (res.result === 'success') {
-          selectEl.innerHTML = '<option value="">-- 請選擇預約時段 --</option>';
+          listEl.innerHTML = '';
 
           res.data.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.timeslot;
+            const card = document.createElement('div');
+            card.className = `timeslot-card ${item.isFull ? 'disabled' : ''}`;
+            
+            // 卡片內部 HTML
+            card.innerHTML = `
+              <div class="timeslot-info">
+                <span class="slot-time">⏰ ${item.timeslot}</span>
+                <span class="slot-topic">🎯 ${item.topic}</span>
+              </div>
+              <div class="slot-badge">
+                ${item.isFull ? '已額滿' : `剩 ${item.remaining} 名`}
+              </div>
+            `;
 
-            if (item.isFull) {
-              option.textContent = `${item.timeslot} (已額滿)`;
-              option.disabled = true;
-            } else {
-              option.textContent = `${item.timeslot} (剩餘 ${item.remaining} 名)`;
+            // 如果未額滿，綁定點擊事件
+            if (!item.isFull) {
+              card.addEventListener('click', function() {
+                // 清除其他卡片的選取狀態
+                document.querySelectorAll('.timeslot-card').forEach(el => el.classList.remove('selected'));
+                // 設為目前選取
+                card.classList.add('selected');
+                // 將數值紀錄至隱藏欄位
+                document.getElementById('selectedTimeslot').value = item.timeslot;
+              });
             }
 
-            selectEl.appendChild(option);
+            listEl.appendChild(card);
           });
         } else {
-          selectEl.innerHTML = '<option value="">-- 載入時段失敗，請重新整理 --</option>';
+          listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">載入時段失敗，請重新整理頁面。</p>';
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        selectEl.innerHTML = '<option value="">-- 網路連線錯誤 --</option>';
+        listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">網路連線錯誤，請重試。</p>';
       });
   }
 
-  // 處理表單提交 POST 邏輯
+  // 表單送出
   document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    const selectedTimeslot = document.getElementById('selectedTimeslot').value;
+    if (!selectedTimeslot) {
+      alert('請先點擊選擇一個預約時段！');
+      return;
+    }
 
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.innerText = '處理中...';
     submitBtn.disabled = true;
 
     const name = document.getElementById('name').value;
-    const unit = document.getElementById('unit').value; // 讀取服務單位
+    const unit = document.getElementById('unit').value;
     const phone = document.getElementById('phone').value;
-    const timeslot = document.getElementById('timeslot').value;
 
     const payload = {
       name: name,
       unit: unit,
       phone: phone,
-      timeslot: timeslot
+      timeslot: selectedTimeslot
     };
 
     fetch(GAS_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     })
     .then(response => response.json())
@@ -143,7 +169,7 @@
       if (data.result === 'success') {
         document.getElementById('displayName').innerText = name;
         document.getElementById('displayUnit').innerText = unit;
-        document.getElementById('displayTime').innerText = timeslot;
+        document.getElementById('displayTime').innerText = selectedTimeslot;
         document.getElementById('ticketId').innerText = data.ticketId; 
 
         document.getElementById('bookingForm').style.display = 'none';
@@ -151,7 +177,7 @@
 
       } else if (data.result === 'full') {
         alert(data.message);
-        loadTimeslotQuota();
+        loadTimeslots();
         submitBtn.innerText = '立即預約';
         submitBtn.disabled = false;
 
