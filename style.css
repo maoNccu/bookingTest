@@ -37,26 +37,36 @@ main {
 }
 
 /* ==========================================================================
-   標頭與外框容器 (Header & Container)
+   標頭區塊 (Header) - 增加藍色漸層背景與圓角
    ========================================================================== */
 header {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  padding: 24px 20px;
+  border-radius: var(--radius);
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
 header h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
-  color: var(--text-main);
+  color: #ffffff;
   letter-spacing: -0.5px;
+  margin: 0;
 }
 
 header p {
   font-size: 14px;
-  color: var(--text-muted);
+  color: #e0e7ff;
   margin-top: 6px;
+  opacity: 0.9;
 }
 
+/* ==========================================================================
+   主內容容器 (Container)
+   ========================================================================== */
 .content-box {
   background-color: var(--card-bg);
   border-radius: var(--radius);
@@ -246,7 +256,7 @@ button:disabled {
 }
 
 .ticket-info {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(5px);
   border-radius: 8px;
   padding: 12px 16px;
@@ -257,12 +267,17 @@ button:disabled {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
 .ticket-info p:last-child {
   border-bottom: none;
+}
+
+.ticket-info span.value {
+  font-weight: 600;
+  color: #ffffff;
 }
 
 .value-highlight {
