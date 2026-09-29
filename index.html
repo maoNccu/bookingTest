@@ -39,7 +39,7 @@
         <input type="hidden" id="selectedTimeslot" name="timeslot" required>
         
         <div id="timeslotList" class="timeslot-container">
-          <p style="color: #64748b; text-align: center; font-size: 14px; padding: 10px 0;">
+          <p style="color: #64748b; text-align: center; font-size: 14px; padding: 10px 0; grid-column: 1 / -1;">
             正在載入場次與名額資訊...
           </p>
         </div>
@@ -79,14 +79,14 @@
 </main>
 
 <script>
-  // 請確認填入正確的 Google Apps Script 部署 URL
-  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec;
+  // 已修正單引號閉合語法
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
   document.addEventListener('DOMContentLoaded', function() {
     loadTimeslots();
   });
 
-  // 動態載入時段卡片按鈕（優化與容錯強化版）
+  // 動態載入時段卡片按鈕（網格直立 3 行版）
   function loadTimeslots() {
     const listEl = document.getElementById('timeslotList');
 
@@ -97,7 +97,7 @@
           listEl.innerHTML = '';
 
           if (!res.data || res.data.length === 0) {
-            listEl.innerHTML = '<p style="color: #64748b; text-align: center;">目前無開放預約的時段。</p>';
+            listEl.innerHTML = '<p style="color: #64748b; text-align: center; grid-column: 1 / -1;">目前無開放預約的時段。</p>';
             return;
           }
 
@@ -110,11 +110,10 @@
 
             card.className = `timeslot-card ${isFull ? 'disabled' : ''}`;
             
+            // 渲染：第一行時段、第二行主題、第三行名額
             card.innerHTML = `
-              <div class="timeslot-info">
-                <span class="slot-time">⏰ ${item.timeslot || ''}</span>
-                <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
-              </div>
+              <span class="slot-time">⏰ ${item.timeslot || ''}</span>
+              <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
               <div class="slot-badge">
                 ${isFull ? '已額滿' : `剩 ${isNaN(remainingNum) ? item.remaining : remainingNum} 名`}
               </div>
@@ -146,12 +145,12 @@
             listEl.appendChild(card);
           });
         } else {
-          listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">載入時段失敗：' + (res.message || '') + '</p>';
+          listEl.innerHTML = '<p style="color:#ef4444; text-align:center; grid-column: 1 / -1;">載入時段失敗：' + (res.message || '') + '</p>';
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">網路連線錯誤，請重新整理頁面。</p>';
+        listEl.innerHTML = '<p style="color:#ef4444; text-align:center; grid-column: 1 / -1;">網路連線錯誤，請重新整理頁面。</p>';
       });
   }
 
