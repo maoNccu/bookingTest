@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>活動線上預約系統</title>
-  <!-- 引入獨立的 CSS 檔案 -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,6 +21,13 @@
         <label for="name">姓名</label>
         <input type="text" id="name" required placeholder="請輸入您的姓名">
       </div>
+      
+      <!-- 新增：服務學校/單位 -->
+      <div class="form-group">
+        <label for="unit">服務學校/單位</label>
+        <input type="text" id="unit" required placeholder="請輸入您的學校或單位名稱">
+      </div>
+
       <div class="form-group">
         <label for="phone">手機號碼</label>
         <input type="tel" id="phone" required placeholder="請輸入手機號碼">
@@ -42,6 +48,7 @@
       <div class="ticket-info">
         <p><span>預約編號</span><span id="ticketId" class="value-highlight"></span></p>
         <p><span>姓名</span><span id="displayName" class="value"></span></p>
+        <p><span>服務單位</span><span id="displayUnit" class="value"></span></p>
         <p><span>時段</span><span id="displayTime" class="value"></span></p>
       </div>
     </div>
@@ -113,11 +120,13 @@
     submitBtn.disabled = true;
 
     const name = document.getElementById('name').value;
+    const unit = document.getElementById('unit').value; // 讀取服務單位
     const phone = document.getElementById('phone').value;
     const timeslot = document.getElementById('timeslot').value;
 
     const payload = {
       name: name,
+      unit: unit,
       phone: phone,
       timeslot: timeslot
     };
@@ -133,6 +142,7 @@
     .then(data => {
       if (data.result === 'success') {
         document.getElementById('displayName').innerText = name;
+        document.getElementById('displayUnit').innerText = unit;
         document.getElementById('displayTime').innerText = timeslot;
         document.getElementById('ticketId').innerText = data.ticketId; 
 
@@ -192,6 +202,7 @@
                 <div style="padding: 10px 0; border-bottom: 1px dashed #cbd5e1;">
                   <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">編號</span><span style="font-weight:700; color:#2563eb;">${item.ticketId}</span></p>
                   <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">姓名</span><span style="font-weight:600;">${item.name}</span></p>
+                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">單位</span><span style="font-weight:600;">${item.unit || '-'}</span></p>
                   <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">時段</span><span style="font-weight:600;">${item.timeslot}</span></p>
                 </div>
               `;
