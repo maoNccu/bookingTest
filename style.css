@@ -1,218 +1,80 @@
-:root {
-    --primary-color: #2563eb;
-    --primary-hover: #1d4ed8;
-    --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
-    --card-bg: #ffffff;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-    --radius: 12px;
+/* 時段按鈕容器 */
+.timeslot-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+/* 個別時段卡片按鈕 */
+.timeslot-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
 }
 
-body {
-    background: var(--bg-gradient);
-    color: var(--text-main);
-    line-height: 1.6;
-    padding: 24px 16px;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.timeslot-card:hover:not(.disabled) {
+  border-color: var(--primary-color);
+  background-color: #eff6ff;
+  transform: translateY(-2px);
 }
 
-main {
-    width: 100%;
-    max-width: 440px;
-    background: var(--card-bg);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+/* 被選取時的狀態 */
+.timeslot-card.selected {
+  border-color: var(--primary-color);
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-header {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-    color: white;
-    padding: 32px 24px;
-    text-align: center;
+.timeslot-card.selected .slot-time {
+  color: var(--primary-color);
 }
 
-    header h1 {
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-
-    header p {
-        font-size: 14px;
-        opacity: 0.85;
-        margin-top: 6px;
-        font-weight: 300;
-    }
-
-.content-box {
-    padding: 28px 24px;
+/* 左側資訊 */
+.timeslot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.form-group {
-    margin-bottom: 20px;
+.slot-time {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-main);
 }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        color: var(--text-main);
-    }
-
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius);
-        font-size: 15px;
-        color: var(--text-main);
-        background-color: #f8fafc;
-        transition: all 0.2s ease;
-        outline: none;
-    }
-
-        .form-group input:focus, .form-group select:focus {
-            background-color: #fff;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-        }
-
-button {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: white;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    transition: all 0.2s ease;
+.slot-topic {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
-    button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-/* 漂亮的預約票券卡片 */
-.ticket-card {
-    display: none;
-    background: #f0fdf4;
-    border: 2px dashed #22c55e;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
-    margin-top: 10px;
-    animation: fadeIn 0.4s ease-out;
+/* 右側名額標籤 */
+.slot-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: #dcfce7;
+  color: #15803d;
+  white-space: nowrap;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* 額滿狀態 */
+.timeslot-card.disabled {
+  opacity: 0.55;
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
 }
 
-.ticket-card h2 {
-    color: #15803d;
-    font-size: 20px;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-.ticket-card .subtitle {
-    color: #166534;
-    font-size: 13px;
-    margin-bottom: 16px;
-    opacity: 0.8;
-}
-
-.ticket-info {
-    background: #ffffff;
-    border-radius: 12px;
-    padding: 16px;
-    text-align: left;
-    font-size: 14px;
-    border: 1px solid #dcfce7;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-    .ticket-info p {
-        margin-bottom: 8px;
-        display: flex;
-        justify-content: space-between;
-    }
-
-        .ticket-info p:last-child {
-            margin-bottom: 0;
-        }
-
-    .ticket-info span.value {
-        font-weight: 600;
-        color: var(--text-main);
-    }
-
-    .ticket-info span.value-highlight {
-        font-weight: 700;
-        color: var(--primary-color);
-        font-size: 16px;
-    }
-
-/* 查詢收合選單 */
-details {
-    margin-top: 24px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 16px;
-}
-
-summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--text-muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    user-select: none;
-}
-
-    summary:hover {
-        color: var(--text-main);
-    }
-
-footer {
-    text-align: center;
-    padding: 16px;
-    font-size: 13px;
-    color: var(--text-muted);
-    background-color: #f8fafc;
-    border-top: 1px solid var(--border-color);
+.timeslot-card.disabled .slot-badge {
+  background-color: #fee2e2;
+  color: #ef4444;
 }
