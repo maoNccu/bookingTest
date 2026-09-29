@@ -1,88 +1,61 @@
-/* 時段按鈕容器 */
-.timeslot-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 8px;
-}
+// 動態載入時段卡片按鈕 (精簡網格 3 行版)
+function loadTimeslots() {
+  const listEl = document.getElementById('timeslotList');
 
-/* 個別時段卡片按鈕 */
-.timeslot-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border: 2px solid var(--border-color, #e2e8f0);
-    border-radius: var(--radius, 12px);
-    background-color: #f8fafc;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-    user-select: none; /* 防止連續點擊選取文字 */
-}
+  fetch(GAS_API_URL)
+    .then(response => response.json())
+    .then(res => {
+      if (res.result === 'success') {
+        listEl.innerHTML = '';
 
-    /* 讓卡片內部的文字與標籤不干擾點擊事件 */
-    .timeslot-card .timeslot-info,
-    .timeslot-card .slot-badge,
-    .timeslot-card span {
-        pointer-events: none;
-    }
-
-    .timeslot-card:hover:not(.disabled) {
-        border-color: var(--primary-color);
-        background-color: #eff6ff;
-        transform: translateY(-2px);
-    }
-
-    /* 被選取時的狀態 */
-    .timeslot-card.selected {
-        border-color: var(--primary-color);
-        background-color: #eff6ff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-    }
-
-        .timeslot-card.selected .slot-time {
-            color: var(--primary-color);
+        if (!res.data || res.data.length === 0) {
+          listEl.innerHTML = '<p style="color: #64748b; text-align: center; grid-column: 1 / -1;">目前無開放預約的時段。</p>';
+          return;
         }
 
-/* 左側資訊 */
-.timeslot-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
+        res.data.forEach(item => {
+          const card = document.createElement('div');
+          
+          const remainingNum = parseInt(item.remaining, 10);
+          const isFull = (item.isFull === true || item.isFull === 'true' || remainingNum <= 0);
 
-.slot-time {
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text-main);
-}
+          card.className = `timeslot-card ${isFull ? 'disabled' : ''}`;
+          
+          // 渲染第一行：時段，第二行：主題，第三行：名額標籤
+          card.innerHTML = `
+            <span class="slot-time">⏰ ${item.timeslot || ''}</span>
+            <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
+            <div class="slot-badge">
+              ${isFull ? '已額滿' : `剩 ${isNaN(remainingNum) ? item.remaining : remainingNum} 名`}
+            </div>
+          `;
 
-.slot-topic {
-    font-size: 13px;
-    color: var(--text-muted);
-}
+          // 綁定點擊事件
+          if (!isFull) {
+            card.addEventListener('click', function(e) {
+              e.preventDefault();
 
-/* 右側名額標籤 */
-.slot-badge {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background-color: #dcfce7;
-    color: #15803d;
-    white-space: nowrap;
-}
+              const allCards = document.querySelectorAll('.timeslot-card');
+              allCards.forEach(c => c.classList.remove('selected'));
 
-/* 額滿狀態 */
-.timeslot-card.disabled {
-    opacity: 0.55;
-    background-color: #f1f5f9;
-    border-color: #e2e8f0;
-    cursor: not-allowed;
-}
+              card.classList.add('selected');
 
-    .timeslot-card.disabled .slot-badge {
-        background-color: #fee2e2;
-        color: #ef4444;
-    }
+              const hiddenInput = document.getElementById('selectedTimeslot');
+              if (hiddenInput) {
+                hiddenInput.value = item.timeslot;
+                console.log('✅ 已選取時段：', hiddenInput.value);
+              }
+            });
+          }
+
+          listEl.appendChild(card);
+        });
+      } else {
+        listEl.innerHTML = '<p style="color:#ef4444; text-align:center; grid-column: 1 / -1;">載入時段失敗：' + (res.message || '') + '</p>';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      listEl.innerHTML = '<p style="color:#ef4444; text-align:center; grid-column: 1 / -1;">網路連線錯誤，請重新整理頁面。</p>';
+    });
+}
