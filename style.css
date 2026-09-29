@@ -1,80 +1,88 @@
 /* 時段按鈕容器 */
 .timeslot-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
 }
 
 /* 個別時段卡片按鈕 */
 .timeslot-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius);
-  background-color: #f8fafc;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius, 12px);
+    background-color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    user-select: none; /* 防止連續點擊選取文字 */
 }
 
-.timeslot-card:hover:not(.disabled) {
-  border-color: var(--primary-color);
-  background-color: #eff6ff;
-  transform: translateY(-2px);
-}
+    /* 讓卡片內部的文字與標籤不干擾點擊事件 */
+    .timeslot-card .timeslot-info,
+    .timeslot-card .slot-badge,
+    .timeslot-card span {
+        pointer-events: none;
+    }
 
-/* 被選取時的狀態 */
-.timeslot-card.selected {
-  border-color: var(--primary-color);
-  background-color: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
+    .timeslot-card:hover:not(.disabled) {
+        border-color: var(--primary-color);
+        background-color: #eff6ff;
+        transform: translateY(-2px);
+    }
 
-.timeslot-card.selected .slot-time {
-  color: var(--primary-color);
-}
+    /* 被選取時的狀態 */
+    .timeslot-card.selected {
+        border-color: var(--primary-color);
+        background-color: #eff6ff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+        .timeslot-card.selected .slot-time {
+            color: var(--primary-color);
+        }
 
 /* 左側資訊 */
 .timeslot-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .slot-time {
-  font-weight: 700;
-  font-size: 15px;
-  color: var(--text-main);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-main);
 }
 
 .slot-topic {
-  font-size: 13px;
-  color: var(--text-muted);
+    font-size: 13px;
+    color: var(--text-muted);
 }
 
 /* 右側名額標籤 */
 .slot-badge {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background-color: #dcfce7;
-  color: #15803d;
-  white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background-color: #dcfce7;
+    color: #15803d;
+    white-space: nowrap;
 }
 
 /* 額滿狀態 */
 .timeslot-card.disabled {
-  opacity: 0.55;
-  background-color: #f1f5f9;
-  border-color: #e2e8f0;
-  cursor: not-allowed;
+    opacity: 0.55;
+    background-color: #f1f5f9;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
 }
 
-.timeslot-card.disabled .slot-badge {
-  background-color: #fee2e2;
-  color: #ef4444;
-}
+    .timeslot-card.disabled .slot-badge {
+        background-color: #fee2e2;
+        color: #ef4444;
+    }
