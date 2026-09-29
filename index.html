@@ -1,254 +1,60 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>活動線上預約系統</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+// 動態載入時段卡片按鈕
+function loadTimeslots() {
+  const listEl = document.getElementById('timeslotList');
 
-<main>
-  <header>
-    <h1>2026 活動體驗預約</h1>
-    <p>請填寫資料完成線上報名</p>
-  </header>
-
-  <div class="content-box">
-    <!-- 預約表單 -->
-    <form id="bookingForm">
-      <div class="form-group">
-        <label for="name">姓名</label>
-        <input type="text" id="name" required placeholder="請輸入您的姓名">
-      </div>
-      
-      <div class="form-group">
-        <label for="unit">服務學校/單位</label>
-        <input type="text" id="unit" required placeholder="請輸入您的學校或單位名稱">
-      </div>
-
-      <div class="form-group">
-        <label for="phone">手機號碼</label>
-        <input type="tel" id="phone" required placeholder="請輸入手機號碼">
-      </div>
-
-      <!-- 改為按鈕選單式時段選擇區 -->
-      <div class="form-group">
-        <label>選擇預約時段與主題</label>
-        <!-- 隱藏 input 用於表單驗證與紀錄選取的時段 -->
-        <input type="hidden" id="selectedTimeslot" name="timeslot" required>
-        
-        <div id="timeslotList" class="timeslot-container">
-          <p style="color: var(--text-muted); text-align: center; font-size: 14px; padding: 10px 0;">
-            正在載入場次與名額資訊...
-          </p>
-        </div>
-      </div>
-
-      <button type="submit" id="submitBtn">立即預約</button>
-    </form>
-
-    <!-- 預約成功憑證 -->
-    <div id="ticketCard" class="ticket-card">
-      <h2>✓ 預約完成</h2>
-      <p class="subtitle">請截圖儲存此畫面，現場出示憑證入場</p>
-      <div class="ticket-info">
-        <p><span>預約編號</span><span id="ticketId" class="value-highlight"></span></p>
-        <p><span>姓名</span><span id="displayName" class="value"></span></p>
-        <p><span>服務單位</span><span id="displayUnit" class="value"></span></p>
-        <p><span>時段</span><span id="displayTime" class="value"></span></p>
-      </div>
-    </div>
-
-    <!-- 查詢專區 -->
-    <details>
-      <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
-      <div style="margin-top: 16px;">
-        <div class="form-group">
-          <input type="tel" id="searchPhone" placeholder="請輸入報名時的手機號碼">
-        </div>
-        <button type="button" id="searchBtn" onclick="searchBooking()" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);">查詢預約記錄</button>
-
-        <!-- 查詢結果顯示區域 -->
-        <div id="searchResult" style="margin-top: 16px; font-size: 14px;"></div>
-      </div>
-    </details>
-  </div>
-
-  <footer>主辦單位：您的單位名稱</footer>
-</main>
-
-<script>
-  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
-
-  document.addEventListener('DOMContentLoaded', function() {
-    loadTimeslots();
-  });
-
-  // 動態載入時段卡片按鈕
-  function loadTimeslots() {
-    const listEl = document.getElementById('timeslotList');
-
-    fetch(GAS_API_URL)
-      .then(response => response.json())
-      .then(res => {
-        if (res.result === 'success') {
-          listEl.innerHTML = '';
-
-          res.data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = `timeslot-card ${item.isFull ? 'disabled' : ''}`;
-            
-            // 卡片內部 HTML
-            card.innerHTML = `
-              <div class="timeslot-info">
-                <span class="slot-time">⏰ ${item.timeslot}</span>
-                <span class="slot-topic">🎯 ${item.topic}</span>
-              </div>
-              <div class="slot-badge">
-                ${item.isFull ? '已額滿' : `剩 ${item.remaining} 名`}
-              </div>
-            `;
-
-            // 如果未額滿，綁定點擊事件
-            if (!item.isFull) {
-              card.addEventListener('click', function() {
-                // 清除其他卡片的選取狀態
-                document.querySelectorAll('.timeslot-card').forEach(el => el.classList.remove('selected'));
-                // 設為目前選取
-                card.classList.add('selected');
-                // 將數值紀錄至隱藏欄位
-                document.getElementById('selectedTimeslot').value = item.timeslot;
-              });
-            }
-
-            listEl.appendChild(card);
-          });
-        } else {
-          listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">載入時段失敗，請重新整理頁面。</p>';
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">網路連線錯誤，請重試。</p>';
-      });
-  }
-
-  // 表單送出
-  document.getElementById('bookingForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const selectedTimeslot = document.getElementById('selectedTimeslot').value;
-    if (!selectedTimeslot) {
-      alert('請先點擊選擇一個預約時段！');
-      return;
-    }
-
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerText = '處理中...';
-    submitBtn.disabled = true;
-
-    const name = document.getElementById('name').value;
-    const unit = document.getElementById('unit').value;
-    const phone = document.getElementById('phone').value;
-
-    const payload = {
-      name: name,
-      unit: unit,
-      phone: phone,
-      timeslot: selectedTimeslot
-    };
-
-    fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    })
+  fetch(GAS_API_URL)
     .then(response => response.json())
-    .then(data => {
-      if (data.result === 'success') {
-        document.getElementById('displayName').innerText = name;
-        document.getElementById('displayUnit').innerText = unit;
-        document.getElementById('displayTime').innerText = selectedTimeslot;
-        document.getElementById('ticketId').innerText = data.ticketId; 
+    .then(res => {
+      if (res.result === 'success') {
+        listEl.innerHTML = '';
 
-        document.getElementById('bookingForm').style.display = 'none';
-        document.getElementById('ticketCard').style.display = 'block';
+        if (res.data.length === 0) {
+          listEl.innerHTML = '<p style="color: #64748b; text-align: center;">目前無可用時段。</p>';
+          return;
+        }
 
-      } else if (data.result === 'full') {
-        alert(data.message);
-        loadTimeslots();
-        submitBtn.innerText = '立即預約';
-        submitBtn.disabled = false;
+        res.data.forEach(item => {
+          const card = document.createElement('div');
+          card.className = `timeslot-card ${item.isFull ? 'disabled' : ''}`;
+          
+          card.innerHTML = `
+            <div class="timeslot-info">
+              <span class="slot-time">⏰ ${item.timeslot}</span>
+              <span class="slot-topic">🎯 ${item.topic}</span>
+            </div>
+            <div class="slot-badge">
+              ${item.isFull ? '已額滿' : `剩 ${item.remaining} 名`}
+            </div>
+          `;
 
+          // 如果未額滿，綁定點擊事件
+          if (!item.isFull) {
+            card.addEventListener('click', function(e) {
+              e.preventDefault();
+
+              // 1. 移除其他卡片的 selected 樣式
+              const allCards = document.querySelectorAll('.timeslot-card');
+              allCards.forEach(c => c.classList.remove('selected'));
+
+              // 2. 當前卡片加上 selected 樣式
+              card.classList.add('selected');
+
+              // 3. 將選取的時段寫入隱藏欄位
+              const hiddenInput = document.getElementById('selectedTimeslot');
+              hiddenInput.value = item.timeslot;
+
+              console.log('已選取時段：', hiddenInput.value); // 可在瀏覽器主控台 (F12) 查看
+            });
+          }
+
+          listEl.appendChild(card);
+        });
       } else {
-        alert('預約失敗：' + data.message);
-        submitBtn.innerText = '立即預約';
-        submitBtn.disabled = false;
+        listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">載入時段失敗：' + (res.message || '') + '</p>';
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('網路連線失敗，請重試！');
-      submitBtn.innerText = '立即預約';
-      submitBtn.disabled = false;
+      listEl.innerHTML = '<p style="color:#ef4444; text-align:center;">網路連線錯誤，請重試。</p>';
     });
-  });
-
-  // 查詢功能
-  function searchBooking() {
-    const phoneInput = document.getElementById('searchPhone').value.trim();
-    const resultDiv = document.getElementById('searchResult');
-    const searchBtn = document.getElementById('searchBtn');
-
-    if (!phoneInput) {
-      alert('請輸入手機號碼！');
-      return;
-    }
-
-    searchBtn.innerText = '查詢中...';
-    searchBtn.disabled = true;
-    resultDiv.innerHTML = '';
-
-    fetch(`${GAS_API_URL}?phone=${encodeURIComponent(phoneInput)}`)
-      .then(response => response.json())
-      .then(res => {
-        searchBtn.innerText = '查詢預約記錄';
-        searchBtn.disabled = false;
-
-        if (res.result === 'success') {
-          if (res.data.length === 0) {
-            resultDiv.innerHTML = '<p style="color: #ef4444; text-align: center; font-weight: 500;">查無預約紀錄，請確認號碼是否正確。</p>';
-          } else {
-            let html = '<div style="background: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">';
-            html += '<p style="font-weight: 600; margin-bottom: 12px; color: #2563eb;">找到您的預約紀錄：</p>';
-            
-            res.data.forEach(item => {
-              html += `
-                <div style="padding: 10px 0; border-bottom: 1px dashed #cbd5e1;">
-                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">編號</span><span style="font-weight:700; color:#2563eb;">${item.ticketId}</span></p>
-                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">姓名</span><span style="font-weight:600;">${item.name}</span></p>
-                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">單位</span><span style="font-weight:600;">${item.unit || '-'}</span></p>
-                  <p style="display:flex; justify-content:space-between;"><span style="color:#64748b;">時段</span><span style="font-weight:600;">${item.timeslot}</span></p>
-                </div>
-              `;
-            });
-            
-            html += '</div>';
-            resultDiv.innerHTML = html;
-          }
-        } else {
-          resultDiv.innerHTML = '<p style="color: #ef4444;">查詢失敗：' + res.message + '</p>';
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        searchBtn.innerText = '查詢預約記錄';
-        searchBtn.disabled = false;
-        resultDiv.innerHTML = '<p style="color: #ef4444;">網路連線錯誤，請重試。</p>';
-      });
-  }
-</script>
-
-</body>
-</html>
+}
