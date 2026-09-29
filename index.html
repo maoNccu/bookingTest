@@ -49,21 +49,26 @@
       <button type="submit" id="submitBtn">立即預約</button>
     </form>
 
-    <!-- 預約成功憑證 -->
+    <!-- 預約成功憑證卡片 -->
     <div id="ticketCard" class="ticket-card" style="display: none;">
       <h2>✓ 預約完成</h2>
       <p class="subtitle">請截圖儲存此畫面，現場出示憑證入場</p>
       <div class="ticket-info">
         <p><span>預約編號</span><span id="ticketId" class="value-highlight"></span></p>
-        <p><span>預約主題</span><span id="displayTopic" class="value-highlight"></span></p>
+        <p><span>預約主題</span><span id="displayTopic" class="value" style="font-weight: 700; color: #2563eb;"></span></p>
         <p><span>姓名</span><span id="displayName" class="value"></span></p>
         <p><span>服務單位</span><span id="displayUnit" class="value"></span></p>
         <p><span>時段</span><span id="displayTime" class="value"></span></p>
       </div>
+
+      <!-- ⭐ 新增：回到預約畫面按鈕 ⭐ -->
+      <button type="button" id="resetBtn" onclick="resetToBookingForm()" style="margin-top: 20px; background: #2563eb; color: #ffffff; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+        返回預約畫面 (繼續預約)
+      </button>
     </div>
 
     <!-- 查詢專區 -->
-    <details>
+    <details style="margin-top: 20px;">
       <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
       <div style="margin-top: 16px;">
         <div class="form-group">
@@ -77,7 +82,7 @@
     </details>
   </div>
 
-  <footer>主辦單位：iGER 教育部提升大學通識教育計畫</footer>
+  <footer>主辦單位：您的單位名稱</footer>
 </main>
 
 <script>
@@ -87,7 +92,7 @@
     loadTimeslots();
   });
 
-  // 動態載入時段卡片按鈕
+  // 1. 動態載入時段與場次主題卡片
   function loadTimeslots() {
     const listEl = document.getElementById('timeslotList');
 
@@ -105,13 +110,11 @@
           res.data.forEach(item => {
             const card = document.createElement('div');
             
-            // 轉譯額滿判定
             const remainingNum = parseInt(item.remaining, 10);
             const isFull = (item.isFull === true || item.isFull === 'true' || remainingNum <= 0);
 
             card.className = `timeslot-card ${isFull ? 'disabled' : ''}`;
             
-            // 渲染：時段、主題、名額
             card.innerHTML = `
               <span class="slot-time">⏰ ${item.timeslot || ''}</span>
               <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
@@ -120,28 +123,21 @@
               </div>
             `;
 
-            // 未額滿才綁定點擊觸發事件
             if (!isFull) {
               card.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                // 1. 移除其他卡片的選取樣式
                 const allCards = document.querySelectorAll('.timeslot-card');
                 allCards.forEach(c => c.classList.remove('selected'));
 
-                // 2. 當前點擊卡片加上 selected 樣式
                 card.classList.add('selected');
 
-                // 3. 寫入 hidden input (同時保存時段與主題)
                 const hiddenInputTime = document.getElementById('selectedTimeslot');
                 const hiddenInputTopic = document.getElementById('selectedTopic');
                 
                 if (hiddenInputTime) {
                   hiddenInputTime.value = item.timeslot;
                   if (hiddenInputTopic) hiddenInputTopic.value = item.topic || '體驗活動';
-                  console.log('✅ 已選取時段：', hiddenInputTime.value, '主題：', item.topic);
-                } else {
-                  console.error('❌ 找不到 ID 為 selectedTimeslot 的隱藏欄位！');
                 }
               });
             }
@@ -158,7 +154,7 @@
       });
   }
 
-  // 送出預約表單
+  // 2. 送出預約表單
   document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -196,7 +192,7 @@
         document.getElementById('displayName').innerText = name;
         document.getElementById('displayUnit').innerText = unit;
         document.getElementById('displayTime').innerText = selectedTimeslot;
-        document.getElementById('displayTopic').innerText = selectedTopic || '體驗活動'; // ⭐ 填入完成憑證主題
+        document.getElementById('displayTopic').innerText = selectedTopic || '體驗活動';
         document.getElementById('ticketId').innerText = data.ticketId; 
 
         document.getElementById('bookingForm').style.display = 'none';
@@ -222,7 +218,27 @@
     });
   });
 
-  // 查詢預約紀錄
+  // ⭐ 3. 返回預約畫面的重置函式 ⭐
+  function resetToBookingForm() {
+    // 1. 重置表單欄位輸入內容
+    document.getElementById('bookingForm').reset();
+    document.getElementById('selectedTimeslot').value = '';
+    document.getElementById('selectedTopic').value = '';
+
+    // 2. 恢復預約按鈕狀態
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.innerText = '立即預約';
+    submitBtn.disabled = false;
+
+    // 3. 切換顯示：隱藏憑證，顯示表單
+    document.getElementById('ticketCard').style.display = 'none';
+    document.getElementById('bookingForm').style.display = 'block';
+
+    // 4. 重新載入最新時段名額資訊
+    loadTimeslots();
+  }
+
+  // 4. 查詢預約紀錄
   function searchBooking() {
     const phoneInput = document.getElementById('searchPhone').value.trim();
     const resultDiv = document.getElementById('searchResult');
@@ -253,8 +269,7 @@
             res.data.forEach(item => {
               html += `
                 <div style="padding: 12px 0; border-bottom: 1px dashed #cbd5e1;">
-                  <p style="display:flex; justify-content:space-between; margin-bottom: 4px;"><span style="color:#64748b;">編號</span><span style="font-weight:700; color:#2563eb;">${item.ticketId}</span></p>
-                  <!-- ⭐ 新增顯示場次主題 ⭐ -->
+                  <p style="display:flex; justify-content:space-between; margin-bottom: 4px;"><span style="color:#64748b;">憑證編號</span><span style="font-weight:700; color:#2563eb;">${item.ticketId}</span></p>
                   <p style="display:flex; justify-content:space-between; margin-bottom: 4px;"><span style="color:#64748b;">預約主題</span><span style="font-weight:700; color:#1e293b;">${item.topic || '體驗活動'}</span></p>
                   <p style="display:flex; justify-content:space-between; margin-bottom: 4px;"><span style="color:#64748b;">預約時段</span><span style="font-weight:600;">${item.timeslot}</span></p>
                   <p style="display:flex; justify-content:space-between; margin-bottom: 4px;"><span style="color:#64748b;">姓名</span><span style="font-weight:600;">${item.name}</span></p>
