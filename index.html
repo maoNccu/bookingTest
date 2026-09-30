@@ -82,21 +82,21 @@
 </main>
 
 <script>
-  // 部署後的 Google Apps Script Web App API 網址
+  // 部署後的 Google Apps Script Web App API 網址（用於 GET 讀取與查詢）
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
   document.addEventListener('DOMContentLoaded', function() {
-    // 1. 初始化載入快取時段資料
+    // 1. 初始化載入時段與名額資料
     loadTimeslots();
 
-    // 2. 綁定表單提交與按鈕點擊事件
+    // 2. 綁定事件監聽
     document.getElementById('bookingForm').addEventListener('submit', handleBookingSubmit);
     document.getElementById('resetBtn').addEventListener('click', resetToBookingForm);
     document.getElementById('searchBtn').addEventListener('click', searchBooking);
   });
 
   /**
-   * 1. 動態載入時段與場次主題卡片 (向方案 A Cache 獲取極速回應)
+   * 1. 動態載入時段與場次主題卡片
    */
   function loadTimeslots() {
     const listEl = document.getElementById('timeslotList');
@@ -126,7 +126,6 @@
               </div>
             `;
 
-            // 當未額滿時，提供點擊選取動作
             if (!isFull) {
               card.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -152,7 +151,7 @@
   }
 
   /**
-   * 2. 送出預約處理
+   * 2. 送出預約處理 (GAS POST 請求)
    */
   function handleBookingSubmit(e) {
     e.preventDefault();
@@ -198,25 +197,25 @@
         document.getElementById('ticketCard').style.display = 'block';
       } else if (data.result === 'full') {
         alert(data.message || '該時段已額滿，請選擇其他時段');
-        loadTimeslots(); // 強制刷新最新剩餘名額
+        loadTimeslots();
         submitBtn.innerText = '立即預約';
         submitBtn.disabled = false;
       } else {
-        alert('預約失敗：' + (data.message || '未知錯誤'));
+        alert('預約失敗：' + (data.message || '系統繁忙，請再試一次'));
         submitBtn.innerText = '立即預約';
         submitBtn.disabled = false;
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('網路連線失敗或系統繁忙中，請稍後重試！');
+      alert('網路連線失敗，請稍後重試！');
       submitBtn.innerText = '立即預約';
       submitBtn.disabled = false;
     });
   }
 
   /**
-   * 3. 返回預約畫面的重置函式
+   * 3. 重置表單畫面
    */
   function resetToBookingForm() {
     document.getElementById('bookingForm').reset();
@@ -234,7 +233,7 @@
   }
 
   /**
-   * 4. 根據手機號碼查詢預約紀錄
+   * 4. 查詢預約紀錄
    */
   function searchBooking() {
     const phoneInput = document.getElementById('searchPhone').value.trim();
