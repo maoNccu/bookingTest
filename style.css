@@ -37,7 +37,7 @@ main {
 }
 
 /* ==========================================================================
-   標頭區塊 (Header) - 增加藍色漸層背景與圓角
+   標頭區塊 (Header)
    ========================================================================== */
 header {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
@@ -49,20 +49,20 @@ header {
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
-    header h1 {
-        font-size: 22px;
-        font-weight: 800;
-        color: #ffffff;
-        letter-spacing: -0.5px;
-        margin: 0;
-    }
+header h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0;
+}
 
-    header p {
-        font-size: 14px;
-        color: #e0e7ff;
-        margin-top: 6px;
-        opacity: 0.9;
-    }
+header p {
+    font-size: 14px;
+    color: #e0e7ff;
+    margin-top: 6px;
+    opacity: 0.9;
+}
 
 /* ==========================================================================
    主內容容器 (Container)
@@ -82,31 +82,31 @@ header {
     margin-bottom: 20px;
 }
 
-    .form-group label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: var(--text-main);
-    }
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
 
-    .form-group input[type="text"],
-    .form-group input[type="tel"] {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1.5px solid var(--border-color);
-        border-radius: var(--radius);
-        font-size: 15px;
-        transition: all 0.2s ease;
-        background-color: #f8fafc;
-        outline: none;
-    }
+.form-group input[type="text"],
+.form-group input[type="tel"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 15px;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+    outline: none;
+}
 
-    .form-group input:focus {
-        border-color: var(--primary-color);
-        background-color: #ffffff;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
+.form-group input:focus {
+    border-color: var(--primary-color);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
 
 button[type="submit"],
 button[type="button"] {
@@ -123,11 +123,11 @@ button[type="button"] {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
-    button[type="submit"]:hover,
-    button[type="button"]:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-    }
+button[type="submit"]:hover,
+button[type="button"]:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
 
 button:disabled {
     opacity: 0.6;
@@ -136,9 +136,8 @@ button:disabled {
 }
 
 /* ==========================================================================
-   時段按鈕網格與卡片 (Timeslot Grid & Cards - 1列3個、3行文字)
+   時段按鈕網格與卡片 (Timeslot Grid & Cards)
    ========================================================================== */
-/* 時段按鈕網格容器：桌面端預設 1 列 3 個 */
 .timeslot-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -146,10 +145,9 @@ button:disabled {
     margin-top: 8px;
 }
 
-/* 個別時段卡片按鈕 (垂直三行、緊湊尺寸) */
 .timeslot-card {
     display: flex;
-    flex-direction: column; /* 垂直直立排列 */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 4px;
@@ -164,12 +162,10 @@ button:disabled {
     min-height: 86px;
 }
 
-    /* 讓卡片內部所有文字都不干擾點擊觸發 */
-    .timeslot-card * {
-        pointer-events: none;
-    }
+.timeslot-card * {
+    pointer-events: none;
+}
 
-/* 第一行：時段 */
 .slot-time {
     font-weight: 700;
     font-size: 13px;
@@ -177,7 +173,6 @@ button:disabled {
     line-height: 1.2;
 }
 
-/* 第二行：主題 */
 .slot-topic {
     font-size: 11px;
     color: var(--text-muted);
@@ -189,7 +184,6 @@ button:disabled {
     padding: 0 2px;
 }
 
-/* 第三行：剩餘名額標籤 */
 .slot-badge {
     font-size: 10px;
     font-weight: 600;
@@ -201,36 +195,34 @@ button:disabled {
     margin-top: 2px;
 }
 
-/* Hover 懸停狀態 */
 .timeslot-card:hover:not(.disabled) {
     border-color: var(--primary-color);
     background-color: #eff6ff;
     transform: translateY(-2px);
 }
 
-/* 被選取時的狀態 */
 .timeslot-card.selected {
     border-color: var(--primary-color);
     background-color: #eff6ff;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
-    .timeslot-card.selected .slot-time {
-        color: var(--primary-color);
-    }
+.timeslot-card.selected .slot-time {
+    color: var(--primary-color);
+}
 
-/* 已額滿禁用狀態 */
 .timeslot-card.disabled {
     opacity: 0.55;
     background-color: #f1f5f9;
     border-color: #e2e8f0;
     cursor: not-allowed;
+    transform: none !important;
 }
 
-    .timeslot-card.disabled .slot-badge {
-        background-color: #fee2e2;
-        color: #ef4444;
-    }
+.timeslot-card.disabled .slot-badge {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
 
 /* ==========================================================================
    預約憑證卡片與查詢區 (Ticket & Search)
@@ -244,16 +236,16 @@ button:disabled {
     box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
-    .ticket-card h2 {
-        font-size: 20px;
-        margin-bottom: 4px;
-    }
+.ticket-card h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
 
-    .ticket-card .subtitle {
-        font-size: 12px;
-        opacity: 0.85;
-        margin-bottom: 20px;
-    }
+.ticket-card .subtitle {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-bottom: 20px;
+}
 
 .ticket-info {
     background-color: rgba(255, 255, 255, 0.12);
@@ -263,22 +255,22 @@ button:disabled {
     text-align: left;
 }
 
-    .ticket-info p {
-        display: flex;
-        justify-content: space-between;
-        font-size: 13px;
-        padding: 8px 0;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    }
+.ticket-info p {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+}
 
-        .ticket-info p:last-child {
-            border-bottom: none;
-        }
+.ticket-info p:last-child {
+    border-bottom: none;
+}
 
-    .ticket-info span.value {
-        font-weight: 600;
-        color: #ffffff;
-    }
+.ticket-info span.value {
+    font-weight: 600;
+    color: #ffffff;
+}
 
 .value-highlight {
     font-weight: 800;
@@ -286,7 +278,6 @@ button:disabled {
     color: #fde047;
 }
 
-/* 手風琴查詢專區 */
 details {
     margin-top: 24px;
     border-top: 1px solid var(--border-color);
@@ -304,9 +295,9 @@ summary {
     list-style: none;
 }
 
-    summary::-webkit-details-marker {
-        display: none;
-    }
+summary::-webkit-details-marker {
+    display: none;
+}
 
 footer {
     text-align: center;
@@ -315,15 +306,7 @@ footer {
     margin-top: 24px;
 }
 
-/* ==========================================================================
-   響應式斷點 (Media Queries)
-   ========================================================================== */
-@media (max-width: 480px) {
-    .timeslot-container {
-        grid-template-columns: repeat(2, 1fr); /* 超小手機改為 1 列 2 個 */
-    }
-}
-/* 狀態文字專用 */
+/* 狀態訊息 */
 .status-msg {
     color: var(--text-muted);
     text-align: center;
@@ -340,7 +323,6 @@ footer {
     padding: 8px 0;
 }
 
-/* 返回預約畫面按鈕 */
 .btn-secondary {
     margin-top: 20px;
     background-color: var(--primary-color) !important;
@@ -348,7 +330,6 @@ footer {
     border-radius: 8px;
 }
 
-/* 查詢手風琴樣式補強 */
 .search-details {
     margin-top: 20px;
 }
@@ -362,7 +343,6 @@ footer {
     box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
 }
 
-/* 查詢結果卡片 */
 #searchResult {
     margin-top: 16px;
     font-size: 14px;
@@ -386,21 +366,30 @@ footer {
     border-bottom: 1px dashed #cbd5e1;
 }
 
-    .result-item:last-child {
-        border-bottom: none;
-    }
+.result-item:last-child {
+    border-bottom: none;
+}
 
-    .result-item p {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 4px;
-    }
+.result-item p {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
 
-    .result-item span {
-        color: var(--text-muted);
-    }
+.result-item span {
+    color: var(--text-muted);
+}
 
-        .result-item span.value {
-            font-weight: 700;
-            color: var(--primary-color);
-        }
+.result-item span.value {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ==========================================================================
+   響應式斷點 (Media Queries)
+   ========================================================================== */
+@media (max-width: 480px) {
+    .timeslot-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
