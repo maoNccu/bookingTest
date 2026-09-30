@@ -46,12 +46,11 @@
       <button type="submit" id="submitBtn">立即預約</button>
     </form>
 
-    <!-- 預約成功憑證卡片 -->
+    <!-- 預約送出提示卡片 -->
     <div id="ticketCard" class="ticket-card" style="display: none;">
-      <h2>✓ 預約完成</h2>
-      <p class="subtitle">請截圖儲存此畫面，現場出示憑證入場</p>
+      <h2>✓ 預約請求已送出</h2>
+      <p class="subtitle">系統已收到您的搶票請求！您可以透過下方手機號碼查詢最終結果。</p>
       <div class="ticket-info">
-        <p><span>預約編號</span><span id="ticketId" class="value-highlight"></span></p>
         <p><span>預約主題</span><span id="displayTopic" class="value-highlight"></span></p>
         <p><span>姓名</span><span id="displayName" class="value"></span></p>
         <p><span>服務單位</span><span id="displayUnit" class="value"></span></p>
@@ -65,7 +64,7 @@
 
     <!-- 查詢專區 -->
     <details class="search-details">
-      <summary><span>🎟️ 查詢預約記錄</span><span>›</span></summary>
+      <summary><span>🎟️ 查詢預約記錄與憑證</span><span>›</span></summary>
       <div class="search-box">
         <div class="form-group">
           <input type="tel" id="searchPhone" placeholder="請輸入報名時的手機號碼">
@@ -82,21 +81,29 @@
 </main>
 
 <script>
-  // 部署後的 Google Apps Script Web App API 網址（用於 GET 讀取與查詢）
+  // 1. GAS API 網址（僅用於 GET 讀取時段資訊與查詢紀錄）
   const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbx2WjqS6uUtBlIGVG219uDOLeSknu-e-y45lsJtaVuRAEef30ZuOjLIkZ6K4C-c-vsb5Q/exec';
 
-  document.addEventListener('DOMContentLoaded', function() {
-    // 1. 初始化載入時段與名額資料
-    loadTimeslots();
+  // 2. Google 表單提交網址 (請填入您表單的 FORM_ID)
+  const GOOGLE_FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/YOUR_FORM_ID_HERE/formResponse';
 
-    // 2. 綁定事件監聽
+  // 3. Google 表單對應各欄位的 entry ID (請替換為您表單實際的 entry.XXXXX)
+  const FORM_ENTRIES = {
+    name: 'entry.111111111',
+    unit: 'entry.222222222',
+    phone: 'entry.333333333',
+    timeslot: 'entry.444444444'
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadTimeslots();
     document.getElementById('bookingForm').addEventListener('submit', handleBookingSubmit);
     document.getElementById('resetBtn').addEventListener('click', resetToBookingForm);
     document.getElementById('searchBtn').addEventListener('click', searchBooking);
   });
 
   /**
-   * 1. 動態載入時段與場次主題卡片
+   * 1. 載入場次與名額資料
    */
   function loadTimeslots() {
     const listEl = document.getElementById('timeslotList');
@@ -129,7 +136,6 @@
             if (!isFull) {
               card.addEventListener('click', function(e) {
                 e.preventDefault();
-
                 document.querySelectorAll('.timeslot-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
 
@@ -151,7 +157,7 @@
   }
 
   /**
-   * 2. 送出預約處理 (GAS POST 請求)
+   * 2. 透過 Google Form 發送大流量搶票請求
    */
   function handleBookingSubmit(e) {
     e.preventDefault();
@@ -165,46 +171,32 @@
     }
 
     const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerText = '預約處理中...';
+    submitBtn.innerText = '搶票送出中...';
     submitBtn.disabled = true;
 
     const name = document.getElementById('name').value;
     const unit = document.getElementById('unit').value;
     const phone = document.getElementById('phone').value;
 
-    const payload = {
-      name: name,
-      unit: unit,
-      phone: phone,
-      timeslot: selectedTimeslot
-    };
+    const formData = new FormData();
+    formData.append(FORM_ENTRIES.name, name);
+    formData.append(FORM_ENTRIES.unit, unit);
+    formData.append(FORM_ENTRIES.phone, phone);
+    formData.append(FORM_ENTRIES.timeslot, selectedTimeslot);
 
-    fetch(GAS_API_URL, {
+    fetch(GOOGLE_FORM_ACTION_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
+      mode: 'no-cors',
+      body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.result === 'success') {
-        document.getElementById('displayName').innerText = name;
-        document.getElementById('displayUnit').innerText = unit;
-        document.getElementById('displayTime').innerText = selectedTimeslot;
-        document.getElementById('displayTopic').innerText = selectedTopic || '體驗活動';
-        document.getElementById('ticketId').innerText = data.ticketId; 
+    .then(() => {
+      document.getElementById('displayName').innerText = name;
+      document.getElementById('displayUnit').innerText = unit;
+      document.getElementById('displayTime').innerText = selectedTimeslot;
+      document.getElementById('displayTopic').innerText = selectedTopic || '體驗活動';
 
-        document.getElementById('bookingForm').style.display = 'none';
-        document.getElementById('ticketCard').style.display = 'block';
-      } else if (data.result === 'full') {
-        alert(data.message || '該時段已額滿，請選擇其他時段');
-        loadTimeslots();
-        submitBtn.innerText = '立即預約';
-        submitBtn.disabled = false;
-      } else {
-        alert('預約失敗：' + (data.message || '系統繁忙，請再試一次'));
-        submitBtn.innerText = '立即預約';
-        submitBtn.disabled = false;
-      }
+      document.getElementById('bookingForm').style.display = 'none';
+      document.getElementById('ticketCard').style.display = 'block';
     })
     .catch(error => {
       console.error('Error:', error);
@@ -233,7 +225,7 @@
   }
 
   /**
-   * 4. 查詢預約紀錄
+   * 4. 查詢預約紀錄與憑證編號
    */
   function searchBooking() {
     const phoneInput = document.getElementById('searchPhone').value.trim();
@@ -257,19 +249,28 @@
 
         if (res.result === 'success') {
           if (!res.data || res.data.length === 0) {
-            resultDiv.innerHTML = '<p class="status-error">查無預約紀錄，請確認號碼是否正確。</p>';
+            resultDiv.innerHTML = '<p class="status-error">查無預約紀錄，或資料處理中，請稍後重試。</p>';
           } else {
             let html = '<div class="result-card">';
-            html += '<p class="result-title">找到您的預約紀錄：</p>';
+            html += '<p class="result-title">您的預約紀錄與結果：</p>';
             
             res.data.forEach(item => {
+              let statusBadge = '';
+              if (item.status === '成功') {
+                statusBadge = '<span class="badge-status success">預約成功</span>';
+              } else if (item.status === '額滿失敗') {
+                statusBadge = '<span class="badge-status failed">殘念額滿</span>';
+              } else {
+                statusBadge = '<span class="badge-status pending">系統處理中</span>';
+              }
+
               html += `
                 <div class="result-item">
+                  <p><span>預約狀態</span>${statusBadge}</p>
                   <p><span>憑證編號</span><span class="value">${item.ticketId}</span></p>
                   <p><span>預約主題</span><span class="value">${item.topic || '體驗活動'}</span></p>
                   <p><span>預約時段</span><span>${item.timeslot}</span></p>
                   <p><span>姓名</span><span>${item.name}</span></p>
-                  <p><span>單位</span><span>${item.unit || '-'}</span></p>
                 </div>
               `;
             });
