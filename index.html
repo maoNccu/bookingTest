@@ -106,56 +106,64 @@
    * 1. 載入場次與名額資料
    */
   function loadTimeslots() {
-    const listEl = document.getElementById('timeslotList');
+  const listEl = document.getElementById('timeslotList');
 
-    fetch(GAS_API_URL)
-      .then(response => response.json())
-      .then(res => {
-        if (res.result === 'success') {
-          listEl.innerHTML = '';
+  // 使用 URL 參數避開部分的快取與 CORS 阻擋
+  fetch(`${GAS_API_URL}?t=${new Date().getTime()}`, {
+    method: 'GET',
+    redirect: 'follow'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP 錯誤！狀態碼：${response.status}`);
+      }
+      return response.json();
+    })
+    .then(res => {
+      if (res.result === 'success') {
+        listEl.innerHTML = '';
 
-          if (!res.data || res.data.length === 0) {
-            listEl.innerHTML = '<p class="status-msg">目前無開放預約的時段。</p>';
-            return;
+        if (!res.data || res.data.length === 0) {
+          listEl.innerHTML = '<p class="status-msg">目前無開放預約的時段。</p>';
+          return;
+        }
+
+        res.data.forEach(item => {
+          const card = document.createElement('div');
+          const remainingNum = parseInt(item.remaining, 10);
+          const isFull = (item.isFull === true || item.isFull === 'true' || remainingNum <= 0);
+
+          card.className = `timeslot-card ${isFull ? 'disabled' : ''}`;
+          card.innerHTML = `
+            <span class="slot-time">⏰ ${item.timeslot || ''}</span>
+            <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
+            <div class="slot-badge">
+              ${isFull ? '已額滿' : `剩 ${isNaN(remainingNum) ? item.remaining : remainingNum} 名`}
+            </div>
+          `;
+
+          if (!isFull) {
+            card.addEventListener('click', function(e) {
+              e.preventDefault();
+              document.querySelectorAll('.timeslot-card').forEach(c => c.classList.remove('selected'));
+              card.classList.add('selected');
+
+              document.getElementById('selectedTimeslot').value = item.timeslot;
+              document.getElementById('selectedTopic').value = item.topic || '體驗活動';
+            });
           }
 
-          res.data.forEach(item => {
-            const card = document.createElement('div');
-            const remainingNum = parseInt(item.remaining, 10);
-            const isFull = (item.isFull === true || item.isFull === 'true' || remainingNum <= 0);
-
-            card.className = `timeslot-card ${isFull ? 'disabled' : ''}`;
-            card.innerHTML = `
-              <span class="slot-time">⏰ ${item.timeslot || ''}</span>
-              <span class="slot-topic">🎯 ${item.topic || '體驗活動'}</span>
-              <div class="slot-badge">
-                ${isFull ? '已額滿' : `剩 ${isNaN(remainingNum) ? item.remaining : remainingNum} 名`}
-              </div>
-            `;
-
-            if (!isFull) {
-              card.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.timeslot-card').forEach(c => c.classList.remove('selected'));
-                card.classList.add('selected');
-
-                document.getElementById('selectedTimeslot').value = item.timeslot;
-                document.getElementById('selectedTopic').value = item.topic || '體驗活動';
-              });
-            }
-
-            listEl.appendChild(card);
-          });
-        } else {
-          listEl.innerHTML = `<p class="status-error">載入時段失敗：${res.message || ''}</p>`;
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        listEl.innerHTML = '<p class="status-error">網路連線錯誤，請重新整理頁面。</p>';
-      });
-  }
-
+          listEl.appendChild(card);
+        });
+      } else {
+        listEl.innerHTML = `<p class="status-error">載入時段失敗：${res.message || ''}</p>`;
+      }
+    })
+    .catch(error => {
+      console.error('Fetch Error:', error);
+      listEl.innerHTML = `<p class="status-error">網路連線錯誤（${error.message}），請確認 GAS 部署權限或重新整理。</p>`;
+    });
+}
   /**
    * 2. 透過 Google Form 發送大流量搶票請求
    */
